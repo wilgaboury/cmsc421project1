@@ -9,7 +9,7 @@ def reconstruct_path(cameFrom, current):
         totalPath.append(current)
     return totalPath
 
-# For this to work start start and goal must be the same type, be hashable and have a function called getNeighbors that returns a tuple (neighbor, weight)
+# For this to work start start mustt be hashable and have a function called getNeighbors that returns a tuple (neighbor, weight)
 def a_star(start, h, isGoal):
     openSet = heapdict.heapdict()
     openSet[start] = h(start)
