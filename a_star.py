@@ -2,37 +2,61 @@ import heapdict
 import numpy as np
 import random
 
-def reconstruct_path(cameFrom, current):
-    totalPath = [current]
-    while current in cameFrom:
-        current = cameFrom[current]
-        totalPath.append(current)
-    return totalPath
+def h_uniform_cost(_):
+    return 0
+
+def h_random_edge(node):
+    result = 0
+    n = node.graph.m.shape[0]
+    for row in range(n):
+        i = random.randint(0, n - 1)
+        if i > row:
+            i = i + 1
+        result = result + node.graph.m[row, i]
+    return result
+
+def h_smallest_edge(node):
+    result = 0
+    n = node.graph.m.shape[0]
+    for row in range(n):
+        result = result + min(filter(lambda x: x > 0, node.graph.m[row, :]))
+    return result
+
+def is_goal(node):
+    n = node.graph.m.shape[0]
+    return node.path[0] == 0 and node.path[-1] == 0 and len(node.path) == n + 1
+
+# def reconstruct_path(cameFrom, current):
+#     totalPath = [current]
+#     while current in cameFrom:
+#         current = cameFrom[current]
+#         totalPath.append(current)
+#     return totalPath
 
 # For this to work start start mustt be hashable and have a function called getNeighbors that returns a tuple (neighbor, weight)
-def a_star(start, h, isGoal):
-    openSet = heapdict.heapdict()
-    openSet[start] = h(start)
-    cameFrom = {}
-    gScore = {start: 0}
+# def a_star(start, h, isGoal):
+#     openSet = heapdict.heapdict()
+#     openSet[start] = h(start)
+#     cameFrom = {}
+#     gScore = {start: 0}
 
-    while len(openSet) > 0:
-        _, current = openSet.peekitem()
-        if isGoal(current):
-            return reconstruct_path(cameFrom, current)
-        openSet.pop()
+#     while len(openSet) > 0:
+#         _, current = openSet.peekitem()
+#         if isGoal(current):
+#             return reconstruct_path(cameFrom, current)
+#         openSet.pop()
 
-        for neighbor, weight in current.getNeighbors():
-            tentativeGScore = gScore[current] + weight
-            if (not (neighbor in gScore)) or tentativeGScore < gScore[neighbor]:
-                cameFrom[neighbor] = current
-                gScore[neighbor] = tentativeGScore
-                openSet[neighbor] = tentativeGScore + h(neighbor)
+#         for neighbor, weight in current.getNeighbors():
+#             tentativeGScore = gScore[current] + weight
+#             if (not (neighbor in gScore)) or tentativeGScore < gScore[neighbor]:
+#                 cameFrom[neighbor] = current
+#                 gScore[neighbor] = tentativeGScore
+#                 openSet[neighbor] = tentativeGScore + h(neighbor)
 
-    return []
+#     return []
 
-
-def one_way_a_star(start, h, isGoal):
+# efficent A* for that basically only works for this problem
+def a_star(start, isGoal, h):
     openSet = heapdict.heapdict()
     openSet[start] = h(start)
     gScore = {start: 0}
@@ -60,10 +84,11 @@ class TSPGraph:
     def generateRandom(n):
         graph = TSPGraph(n)
 
-        for row in range(n):
-            for col in range(n):
-                if row != col:
-                    graph.m[row, col] = random.randint(1, 100)
+        for row in range(n - 1):
+            for col in range(row + 1, n):
+                value = random.randint(1, 100)
+                graph.m[row, col] = value
+                graph.m[col, row] = value
 
     def getInitialStateNode(self):
         return StateNode(self, (0))
@@ -97,7 +122,7 @@ class StateNode:
     def getNeighbors(self):
         neighbors = []
         for neighbor_num, weight in enumerate(self.graph.m[self.path[-1], :]):
-            if weight > 0:
+            if weight > 0 and (neighbor_num == 0 or not neighbor_num in self.path):
                 neighbors.append((StateNode(self.graph, self.path + (neighbor_num,)), weight))
         return neighbors
 
