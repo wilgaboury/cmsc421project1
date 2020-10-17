@@ -9,7 +9,7 @@ def h_random_edge(node):
     result = 0
     n = node.graph.m.shape[0]
     for row in range(n):
-        i = random.randint(0, n - 1)
+        i = random.randint(0, n - 2)
         if i > row:
             i = i + 1
         result = result + node.graph.m[row, i]
@@ -26,6 +26,8 @@ def is_goal(node):
     n = node.graph.m.shape[0]
     return node.path[0] == 0 and node.path[-1] == 0 and len(node.path) == n + 1
 
+# Reference implementation of A*
+
 # def reconstruct_path(cameFrom, current):
 #     totalPath = [current]
 #     while current in cameFrom:
@@ -33,7 +35,6 @@ def is_goal(node):
 #         totalPath.append(current)
 #     return totalPath
 
-# For this to work start start mustt be hashable and have a function called getNeighbors that returns a tuple (neighbor, weight)
 # def a_star(start, h, isGoal):
 #     openSet = heapdict.heapdict()
 #     openSet[start] = h(start)
@@ -55,19 +56,23 @@ def is_goal(node):
 
 #     return []
 
-# efficent A* for that basically only works for this problem
+# efficent version of A* for that basically only works for this problem
 def a_star(start, isGoal, h):
+    nodes_processed = 0
+
     openSet = heapdict.heapdict()
     openSet[start] = h(start)
     gScore = {start: 0}
 
     while len(openSet) > 0:
-        _, current = openSet.peekitem()
-        if isGoal(current):
-            return current
-        openSet.pop()
+        nodes_processed = nodes_processed + 1
 
-        for neighbor, weight in current.getNeighbors():
+        current, _ = openSet.peekitem()
+        if isGoal(current):
+            return (current, nodes_processed)
+        openSet.popitem()
+
+        for neighbor, weight in current.get_neighbors():
             tentativeGScore = gScore[current] + weight
             gScore[neighbor] = tentativeGScore
             openSet[neighbor] = tentativeGScore + h(neighbor)
@@ -81,17 +86,17 @@ class TSPGraph:
         self.m = np.tile(0, (n, n))
 
     @staticmethod
-    def generateRandom(n):
+    def generate_random(n):
         graph = TSPGraph(n)
-
         for row in range(n - 1):
             for col in range(row + 1, n):
                 value = random.randint(1, 100)
                 graph.m[row, col] = value
                 graph.m[col, row] = value
+        return graph
 
-    def getInitialStateNode(self):
-        return StateNode(self, (0))
+    def get_start_state_node(self):
+        return StateNode(self, (0,))
 
 class StateNode:
     def __init__ (self, graph, path, *args, **kw):
@@ -119,7 +124,7 @@ class StateNode:
     def __ge__(self, item):
         return True
 
-    def getNeighbors(self):
+    def get_neighbors(self):
         neighbors = []
         for neighbor_num, weight in enumerate(self.graph.m[self.path[-1], :]):
             if weight > 0 and (neighbor_num == 0 or not neighbor_num in self.path):
