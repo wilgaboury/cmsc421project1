@@ -8,7 +8,8 @@ def h_uniform_cost(_):
 def h_random_edge(node):
     result = 0
     n = node.graph.m.shape[0]
-    for row in range(n):
+    rows = list(set(range(n)) - set(node.path))
+    for row in rows:
         i = random.randint(0, n - 2)
         if i > row:
             i = i + 1
@@ -18,7 +19,8 @@ def h_random_edge(node):
 def h_smallest_edge(node):
     result = 0
     n = node.graph.m.shape[0]
-    for row in range(n):
+    rows = list(set(range(n)) - set(node.path))
+    for row in rows:
         result = result + min(filter(lambda x: x > 0, node.graph.m[row, :]))
     return result
 
