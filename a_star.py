@@ -28,36 +28,6 @@ def is_goal(node):
     n = node.graph.m.shape[0]
     return node.path[0] == 0 and node.path[-1] == 0 and len(node.path) == n + 1
 
-# Reference implementation of A*
-
-# def reconstruct_path(cameFrom, current):
-#     totalPath = [current]
-#     while current in cameFrom:
-#         current = cameFrom[current]
-#         totalPath.append(current)
-#     return totalPath
-
-# def a_star(start, h, isGoal):
-#     openSet = heapdict.heapdict()
-#     openSet[start] = h(start)
-#     cameFrom = {}
-#     gScore = {start: 0}
-
-#     while len(openSet) > 0:
-#         _, current = openSet.peekitem()
-#         if isGoal(current):
-#             return reconstruct_path(cameFrom, current)
-#         openSet.pop()
-
-#         for neighbor, weight in current.getNeighbors():
-#             tentativeGScore = gScore[current] + weight
-#             if (not (neighbor in gScore)) or tentativeGScore < gScore[neighbor]:
-#                 cameFrom[neighbor] = current
-#                 gScore[neighbor] = tentativeGScore
-#                 openSet[neighbor] = tentativeGScore + h(neighbor)
-
-#     return []
-
 # efficent version of A* for that basically only works for this problem
 def a_star(start, isGoal, h):
     nodes_processed = 0
@@ -135,4 +105,35 @@ class StateNode:
 
     
 
-    
+def h_mst(node):
+    n = node.graph.m.shape[0]
+    m = node.graph.m
+
+    result = 0
+
+    # for i in range(n - 1):
+    #     result = result + m[node.path[i], node.path[i + 1]]
+
+    f = set(node.path[0:-1])
+    c = heapdict.heapdict()
+    c[node.path[-1]] = 0
+
+    prev = {}
+    if len(node.path) > 1:
+        prev[node.path[-1]] = node.path[-2]
+    else:
+        prev[0] = 0
+
+    while len(c) > 0:
+        v, _ = c.popitem()
+        f = f | {v}
+        result = result + m[v, prev[v]]
+        neighbors = set(range(n)) - f
+        for neighbor in neighbors:
+            if (not neighbor in c) or m[v, neighbor] < c[neighbor]:
+                c[neighbor] = m[v, neighbor]
+                prev[neighbor] = v
+
+    return result
+
+        
