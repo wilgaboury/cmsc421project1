@@ -53,20 +53,20 @@ def get_random_segment(path):
     segment = []
 
     if loc1 < loc2:
-        segment = path[loc1:loc2+1]
-        rest = path[0:loc1] + path[loc2+1:len(path)]
+        segment = path[loc1:loc2]
+        rest = path[:loc1] + path[loc2:]
     else:
-        segment = path[loc1:len(path)] + path[0:loc2]
-        rest = path[loc2+1:loc1]
+        segment = path[loc1:] + path[:loc2]
+        rest = path[loc2:loc1]
 
     return (segment, rest)
 
-def simulated_annealing(graph, iterations):
+def simulated_annealing(graph, iterations, cooling_factor):
     path = list(range(graph.n))
     random.shuffle(path)
 
     for i in range(iterations):
-        temp = math.pow(0.95, i)
+        temp = math.pow(cooling_factor, i)
 
         seg, rest = get_random_segment(path)
         path_new = []
@@ -76,7 +76,7 @@ def simulated_annealing(graph, iterations):
             path_new = seg[::-1] + rest
         else:
             loc = random.randint(0, len(rest) - 1)
-            path_new = rest[0:loc] + seg + rest[loc:len(rest)]
+            path_new = rest[0:loc] + seg + rest[loc:]
         
         if accept_proposal(tsp.path_cost(path, graph), tsp.path_cost(path_new, graph), temp):
             path = path_new
@@ -114,6 +114,14 @@ def compute_fitness_and_sort(population, graph):
 
     return list(map(lambda m: m['path'], a))
 
+def perform_mutation(path):
+    seg, rest = get_random_segment(path)
+    if random.randint(0,1) == 0:
+        return seg[::-1] + rest
+    else:
+        loc = random.randint(0, len(rest) - 1)
+        return rest[0:loc] + seg + rest[loc:]
+
 def genetic_algorithm(graph, iterations, population_size, mutation_factor):
     if population_size % 2 == 1:
         population_size = population_size + 1
@@ -142,10 +150,9 @@ def genetic_algorithm(graph, iterations, population_size, mutation_factor):
             i = i + 2
 
         # mutation
-        for path in pop:
-            for i in range(-1, len(path) - 1):
-                if random.uniform(0, 1) <= mutation_factor:
-                    path[i], path[i + 1] = path[i + 1], path[i]
+        for i in range(len(pop)):
+            if random.uniform(0, 1) <= mutation_factor:
+                pop[i] = perform_mutation(pop[i])
 
         # recalculate fitness
         pop = compute_fitness_and_sort(pop, graph)

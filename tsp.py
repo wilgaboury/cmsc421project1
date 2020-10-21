@@ -6,6 +6,15 @@ class TSPGraph:
         self.n = n
         self.m = np.tile(0, (n, n))
 
+    def get_start_state_node(self):
+        return StateNode(self, (0,))
+
+    def write_to_file(self, file_name):
+        f = open(file_name, 'w')
+        f.write(str(self.n) + '\n')
+        for row in range(self.n):
+            f.write(', '.join(map(lambda e: str(e), self.m[row,:])) + '\n')
+
     @staticmethod
     def generate_random(n):
         graph = TSPGraph(n)
@@ -16,8 +25,14 @@ class TSPGraph:
                 graph.m[col, row] = value
         return graph
 
-    def get_start_state_node(self):
-        return StateNode(self, (0,))
+    @staticmethod
+    def create_from_file(file_name):
+        f = open(file_name, 'r')
+        graph = TSPGraph(int(f.readline()))
+        for row in range(graph.n):
+            for col, elem in enumerate(f.readline().split(', ')):
+                graph.m[row, col] = int(elem)
+        return graph
 
 class StateNode:
     def __init__ (self, graph, path, *args, **kw):
