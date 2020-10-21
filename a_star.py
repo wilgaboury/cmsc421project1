@@ -19,10 +19,10 @@ def h_random_edge(node):
 
 def h_smallest_edge(node):
     result = 0
-    n = node.graph.m.shape[0]
-    rows = list(set(range(n)) - set(node.path))
-    for row in rows:
-        result = result + min(filter(lambda x: x > 0, node.graph.m[row, :]))
+    n = node.graph.n
+    for row in range(n):
+        if not (row in node.path):
+            result = result + min(filter(lambda x: x > 0, node.graph.m[row,:]))
     return result
 
 def h_mst(node):
@@ -52,10 +52,6 @@ def h_mst(node):
                 prev[neighbor] = v
 
     return result  
-
-def is_goal(node):
-    n = node.graph.m.shape[0]
-    return node.path[0] == 0 and node.path[-1] == 0 and len(node.path) == n + 1
 
 # efficent version of A* for that basically only works for this problem
 def a_star(start, isGoal, h):

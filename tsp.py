@@ -51,10 +51,19 @@ class StateNode:
             if weight > 0 and (neighbor_num == 0 or not neighbor_num in self.path):
                 neighbors.append((StateNode(self.graph, self.path + (neighbor_num,)), weight))
         return neighbors
+    
+    def cost(self):
+        shortened_path = self.path[:len(self.path)-1]
+        return path_cost(shortened_path, self.graph)
 
+
+
+def is_goal(node):
+    n = node.graph.m.shape[0]
+    return node.path[0] == 0 and node.path[-1] == 0 and len(node.path) == n + 1
 
 def path_cost(path, graph):
     result = 0
     for i in range(len(path) - 1):
-        result = graph.m[path[i], path[i + 1]]
+        result = result + graph.m[path[i], path[i + 1]]
     return result + graph.m[path[0], path[-1]]
