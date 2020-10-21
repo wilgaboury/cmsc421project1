@@ -2,7 +2,7 @@ import math
 import random
 import tsp
 
-def hill_climbing(graph, restarts=1):
+def hillClimbing(graph, restarts=1):
     result = list(range(graph.n))
     while restarts > 0:
         path = list(range(graph.n))
@@ -61,7 +61,7 @@ def get_random_segment(path):
 
     return (segment, rest)
 
-def simulated_annealing(graph, iterations, cooling_factor):
+def simuAnnealing(graph, iterations, cooling_factor):
     path = list(range(graph.n))
     random.shuffle(path)
 
@@ -122,7 +122,7 @@ def perform_mutation(path):
         loc = random.randint(0, len(rest) - 1)
         return rest[0:loc] + seg + rest[loc:]
 
-def genetic_algorithm(graph, iterations, population_size, mutation_factor):
+def genetic(graph, iterations, population_size, mutation_factor):
     if population_size % 2 == 1:
         population_size = population_size + 1
 
