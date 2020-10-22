@@ -20,9 +20,9 @@ def h_random_edge(node):
 def h_smallest_edge(node):
     result = 0
     n = node.graph.n
-    for row in range(n):
-        if not (row in node.path):
-            result = result + min(filter(lambda x: x > 0, node.graph.m[row,:]))
+    rows = list(set(range(n)) - set(node.path))
+    for row in rows:
+        result = result + min(filter(lambda x: x > 0, node.graph.m[row,:]))
     return result
 
 def h_mst(node):
@@ -35,9 +35,9 @@ def h_mst(node):
     c = heapdict.heapdict()
     c[node.path[-1]] = 0
 
-    prev = {}
+    prev = [None] * node.graph.n
     if len(node.path) > 1:
-        prev[node.path[-1]] = node.path[-2]
+        prev[node.path[-1]] = node.path[-1]
     else:
         prev[0] = 0
 

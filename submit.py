@@ -17,4 +17,3 @@ def A_cheapestEdge():
 def A_MST():
     graph = tsp.TSPGraph.create_from_file('infile.txt')
     return a_star.a_star(graph.get_start_state_node(), tsp.is_goal, a_star.h_mst)
-

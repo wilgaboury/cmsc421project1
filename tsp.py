@@ -63,7 +63,7 @@ class StateNode:
     def get_neighbors(self):
         neighbors = []
         for neighbor_num, weight in enumerate(self.graph.m[self.path[-1], :]):
-            if weight > 0 and (neighbor_num == 0 or not neighbor_num in self.path):
+            if weight > 0 and (not neighbor_num in self.path or (len(self.path) == self.graph.n and neighbor_num == 0)):
                 neighbors.append((StateNode(self.graph, self.path + (neighbor_num,)), weight))
         return neighbors
     
